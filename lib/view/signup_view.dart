@@ -2,7 +2,9 @@ import 'package:chatapp/constants/app_typography.dart';
 import 'package:chatapp/services/authentication_service.dart';
 import 'package:chatapp/view/login_view.dart';
 import 'package:chatapp/widgets/custom_button.dart';
+import 'package:chatapp/widgets/custom_snackabr.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -31,6 +33,12 @@ void signUpUser() async {
       password: _passwordController.text,
     );
     if (res == "Successfully") {
+       CustomSnackBar.show(
+        context,
+        snackBarType: SnackBarType.success,
+        label: "User registered successfully!",
+        bgColor: Colors.green,
+      );
       // Navigate to the login page if signup is successful
       Navigator.pushReplacement(
         context,
@@ -39,10 +47,13 @@ void signUpUser() async {
         ),
       );
     } else {
-      setState(() {
-        // Show an error message or update the UI to indicate failure
-        print("Sign-up failed: $res");
-      });
+      CustomSnackBar.show(
+        context,
+        snackBarType: SnackBarType.fail,
+        label: "User already exists",
+        bgColor: Colors.red,
+      );
+      print("User already exists");
     }
   }
 }

@@ -1,8 +1,11 @@
 import 'package:chatapp/constants/app_typography.dart';
 import 'package:chatapp/services/authentication_service.dart';
+import 'package:chatapp/view/chat_view.dart';
 import 'package:chatapp/view/signup_view.dart';
 import 'package:chatapp/widgets/custom_button.dart';
+import 'package:chatapp/widgets/custom_snackabr.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -16,10 +19,38 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   bool isLoading = false;
   Future<void> loginUser() async {
+    setState(() {
+      isLoading = true;
+    });
     String res = await AuthenticationService().signInUser(
       email: _emailController.text,
       password: _passwordController.text,
     );
+    setState(() {
+      isLoading = false;
+    });
+
+    if (res == "success") {
+      CustomSnackBar.show(
+        context,
+        snackBarType: SnackBarType.success,
+        label: "User logined successfully!",
+        bgColor: Colors.green,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>  ChatPage(email:_emailController.text ,),
+        ),
+      );
+    } else {
+      CustomSnackBar.show(
+        context,
+        snackBarType: SnackBarType.fail,
+        label: "Login Failed",
+        bgColor: Colors.red,
+      );
+    }
   }
 
   @override

@@ -40,24 +40,28 @@ class AuthenticationService {
   }
 
   Future<String> signInUser({
-    required String email,
-    required String password,
-  })async{
-String res = "Some error occured";
-try{
-    if(email.isEmpty || password.isEmpty){
+  required String email,
+  required String password,
+}) async {
+  String res = "Some error occurred";
+  try {
+    if (email.isNotEmpty && password.isNotEmpty) {
       await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-    res = "success";
+      res = "success";
+    } else {
+      res = "Please enter your email and password";
     }
-    else{
-      res= "Please enter your email and password";
-    }
-    }catch (e) {
-   return  e.toString();
-    }
-    return res;
+  } catch (e) {
+    res = e.toString();
+  }
+  return res;
+}
+
+
+  Future<void> signOut() async {
+    await _auth.signOut();
   }
 }
