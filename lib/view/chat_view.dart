@@ -32,9 +32,19 @@ class _ChatPageState extends State<ChatPage> {
           style: AppTypography.outfitboldsubHead
               .copyWith(color: Colors.white, fontSize: 18),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            // Navigator.pushAndRemoveUntil(
+            //   context,
+            //   MaterialPageRoute(builder: (Context) => LoginPage()),
+            //   (route) => false,
+            // );
+          },
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               _auth.signOut().whenComplete(() {
                 Navigator.pushReplacement(
@@ -64,22 +74,22 @@ class _ChatPageState extends State<ChatPage> {
                       filled: true,
                       fillColor: Colors.purple[50],
                       hintText: 'Type a message...',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.purple),
+                        borderSide: const BorderSide(color: Colors.purple),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Colors.purple, width: 1.5),
+                            const BorderSide(color: Colors.purple, width: 1.5),
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.purple),
+                  icon: const Icon(Icons.send, color: Colors.purple),
                   onPressed: () {
                     if (messageController.text.isNotEmpty) {
                       fs.collection('messages').add({

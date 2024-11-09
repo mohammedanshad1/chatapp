@@ -1,9 +1,10 @@
+import 'dart:developer';
+
 import 'package:chatapp/constants/app_typography.dart';
 import 'package:chatapp/services/authentication_service.dart';
-import 'package:chatapp/view/chat_view.dart';
 import 'package:chatapp/view/signup_view.dart';
-import 'package:chatapp/widgets/custom_button.dart';
 import 'package:chatapp/widgets/custom_snackabr.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
 
@@ -18,45 +19,58 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool isLoading = false;
-  Future<void> loginUser() async {
-    setState(() {
-      isLoading = true;
-    });
-    String res = await AuthenticationService().signInUser(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-    setState(() {
-      isLoading = false;
-    });
+  Future<void> saveFcmToken() async {
+    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    String? token = await firebaseMessaging.getToken();
+    log(token.toString());
+  }
 
-    if (res == "success") {
-      CustomSnackBar.show(
-        context,
-        snackBarType: SnackBarType.success,
-        label: "User logined successfully!",
-        bgColor: Colors.green,
+  Future<void> loginUser() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
+      String res = await AuthenticationService().signInUser(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>  ChatPage(email:_emailController.text ,),
-        ),
-      );
-    } else {
-      CustomSnackBar.show(
-        context,
-        snackBarType: SnackBarType.fail,
-        label: "Login Failed",
-        bgColor: Colors.red,
-      );
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (res == "success") {
+        CustomSnackBar.show(
+          context,
+          snackBarType: SnackBarType.success,
+          label: "User logged in successfully!",
+          bgColor: Colors.green,
+        );
+        saveFcmToken();
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ChatPage(
+        //       email: _emailController.text,
+        //     ),
+        //   ),
+        // );
+      } else {
+        CustomSnackBar.show(
+          context,
+          snackBarType: SnackBarType.fail,
+          label: "Login Failed",
+          bgColor: Colors.red,
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF11002C), // Dark background color
+      backgroundColor: const Color(0xFF11002C),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -93,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Email TextField with validation
+                      // Email TextField
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
@@ -116,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      // Password TextField with validation
+                      // Password TextField
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
@@ -150,13 +164,27 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      // Custom Login Button
-                      CustomButton(
-                        buttonName: "Login",
-                        onTap: loginUser,
-                        buttonColor: const Color(0xFF11002C), // Button color
+                      // Login Button with loading indicator
+                      SizedBox(
+                        width: double.infinity,
                         height: 50,
-                        width: double.infinity, // Full width button
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : loginUser,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF11002C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          child: isLoading
+                              ? CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  "Login",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                        ),
                       ),
                       const SizedBox(height: 10),
                       // Create Account button
@@ -165,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (Context) => SignUpPage(),
+                              builder: (context) => SignUpPage(),
                             ),
                             (route) => false,
                           );

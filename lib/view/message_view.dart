@@ -25,18 +25,18 @@ class _MessageScreenState extends State<MessageScreen> {
       stream: _messageStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return Text("Something went wrong");
+          return const Text("Something went wrong");
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
         return ListView.builder(
           itemCount: snapshot.data!.docs.length,
-          physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(vertical: 10),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           itemBuilder: (_, index) {
             QueryDocumentSnapshot qs = snapshot.data!.docs[index];
             Timestamp t = qs['time'];
@@ -47,19 +47,23 @@ class _MessageScreenState extends State<MessageScreen> {
             return Align(
               alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                 constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.75),
                 decoration: BoxDecoration(
                   color:
                       isMe ? Colors.greenAccent.shade100 : Colors.grey.shade300,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: isMe ? Radius.circular(10) : Radius.circular(0),
-                    bottomRight:
-                        isMe ? Radius.circular(0) : Radius.circular(10),
+                    topLeft: const Radius.circular(10),
+                    topRight: const Radius.circular(10),
+                    bottomLeft: isMe
+                        ? const Radius.circular(10)
+                        : const Radius.circular(0),
+                    bottomRight: isMe
+                        ? const Radius.circular(0)
+                        : const Radius.circular(10),
                   ),
                 ),
                 child: Column(
@@ -73,7 +77,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
                       qs['message'],
                       style: AppTypography.outfitboldsubHead.copyWith(
@@ -81,12 +85,12 @@ class _MessageScreenState extends State<MessageScreen> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Text(
                         "${d.hour}:${d.minute.toString().padLeft(2, '0')}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.black54,
                           fontSize: 12,
                         ),
