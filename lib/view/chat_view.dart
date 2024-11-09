@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:chatapp/constants/app_typography.dart';
 import 'package:chatapp/view/home_screen_view.dart';
 import 'package:chatapp/view/login_view.dart';
@@ -14,13 +15,44 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState(email: email);
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage>
+    with SingleTickerProviderStateMixin {
   final String email;
   _ChatPageState({required this.email});
 
   final FirebaseFirestore fs = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController messageController = TextEditingController();
+
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    messageController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage() {
+    if (messageController.text.isNotEmpty) {
+      fs.collection('messages').add({
+        'message': messageController.text.trim(),
+        'time': DateTime.now(),
+        'email': email,
+      });
+      messageController.clear();
+      _animationController.forward(from: 0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +68,10 @@ class _ChatPageState extends State<ChatPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () {
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => HomeScreen(
-            //       currentUserEmail: _auth.currentUser?.email ?? '',
-            //     ),
-            //   ),
-            // );
-
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (Context) => HomeScreen(
+                  builder: (context) => HomeScreen(
                         currentUserEmail: _auth.currentUser?.email ?? "",
                       )),
               (route) => false,
@@ -101,17 +124,16 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.purple),
-                  onPressed: () {
-                    if (messageController.text.isNotEmpty) {
-                      fs.collection('messages').add({
-                        'message': messageController.text.trim(),
-                        'time': DateTime.now(),
-                        'email': email,
-                      });
-                      messageController.clear();
-                    }
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: _animationController.value * 2 * pi,
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.purple),
+                        onPressed: _sendMessage,
+                      ),
+                    );
                   },
                 ),
               ],

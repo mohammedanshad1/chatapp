@@ -4,101 +4,116 @@ import 'package:flutter/material.dart';
 
 class MessageScreen extends StatefulWidget {
   final String email;
-  MessageScreen({required this.email});
+  const MessageScreen({Key? key, required this.email}) : super(key: key);
 
   @override
-  _MessageScreenState createState() => _MessageScreenState(email: email);
+  _MessageScreenState createState() => _MessageScreenState();
 }
 
 class _MessageScreenState extends State<MessageScreen> {
-  final String email;
-  _MessageScreenState({required this.email});
-
-  Stream<QuerySnapshot> _messageStream = FirebaseFirestore.instance
+  final Stream<QuerySnapshot> _messageStream = FirebaseFirestore.instance
       .collection('messages')
-      .orderBy('time')
+      .orderBy('time', descending: true)
       .snapshots();
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<QuerySnapshot>(
       stream: _messageStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return const Text("Something went wrong");
+          return const Center(child: Text("Something went wrong"));
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         return ListView.builder(
+          reverse: true,
           itemCount: snapshot.data!.docs.length,
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(vertical: 10),
-          itemBuilder: (_, index) {
-            QueryDocumentSnapshot qs = snapshot.data!.docs[index];
-            Timestamp t = qs['time'];
-            DateTime d = t.toDate();
+          itemBuilder: (context, index) {
+            final QueryDocumentSnapshot qs = snapshot.data!.docs[index];
+            final Timestamp timestamp = qs['time'];
+            final DateTime dateTime = timestamp.toDate();
+            final String formattedTime =
+                "${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+            final bool isMe = widget.email == qs['email'];
+            final String userEmail = qs['email'];
+            final String message = qs['message'];
 
-            bool isMe = email == qs['email'];
-
-            return Align(
-              alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-                constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75),
-                decoration: BoxDecoration(
-                  color:
-                      isMe ? Colors.greenAccent.shade100 : Colors.grey.shade300,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(10),
-                    topRight: const Radius.circular(10),
-                    bottomLeft: isMe
-                        ? const Radius.circular(10)
-                        : const Radius.circular(0),
-                    bottomRight: isMe
-                        ? const Radius.circular(0)
-                        : const Radius.circular(10),
+            return Row(
+              mainAxisAlignment:
+                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (!isMe) ...[
+                  CircleAvatar(
+                    backgroundColor: Colors.blueGrey,
+                    child: Text(
+                      userEmail[0].toUpperCase(),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: isMe
+                          ? Colors.purple[100]
+                          : Colors.greenAccent.shade100,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(10),
+                        topRight: const Radius.circular(10),
+                        bottomLeft: isMe
+                            ? const Radius.circular(10)
+                            : const Radius.circular(0),
+                        bottomRight: isMe
+                            ? const Radius.circular(0)
+                            : const Radius.circular(10),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message,
+                          style: AppTypography.outfitboldsubHead.copyWith(
+                            color: Colors.black87,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          formattedTime,
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment:
-                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      qs['email'],
-                      style: AppTypography.outfitboldsubHead.copyWith(
-                        color: Colors.black54,
-                        fontSize: 14,
-                      ),
+                if (isMe) ...[
+                  const SizedBox(width: 8),
+                  CircleAvatar(
+                    backgroundColor: Colors.purple,
+                    child: Text(
+                      userEmail[0].toUpperCase(),
+                      style: const TextStyle(color: Colors.white),
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      qs['message'],
-                      style: AppTypography.outfitboldsubHead.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(
-                        "${d.hour}:${d.minute.toString().padLeft(2, '0')}",
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                ],
+              ],
             );
           },
         );
