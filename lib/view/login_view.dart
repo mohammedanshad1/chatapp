@@ -2,8 +2,11 @@ import 'dart:developer';
 
 import 'package:chatapp/constants/app_typography.dart';
 import 'package:chatapp/services/authentication_service.dart';
+import 'package:chatapp/view/chat_view.dart';
 import 'package:chatapp/view/signup_view.dart';
 import 'package:chatapp/widgets/custom_snackabr.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
@@ -17,12 +20,25 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   bool _obscurePassword = true;
   bool isLoading = false;
-  Future<void> saveFcmToken() async {
+  Future<void> saveFcmToken(User user) async {
     final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
     String? token = await firebaseMessaging.getToken();
-    log(token.toString());
+
+    if (token != null) {
+      log("FCM Token: $token");
+      await _firestore.collection("users").doc(user.uid).set({
+        "uid": user.uid,
+        "email": user.email,
+        "fcmToken": token,
+      }, SetOptions(merge: true)); // Merges with existing document data
+    }
   }
 
   Future<void> loginUser() async {
@@ -41,21 +57,26 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       if (res == "success") {
+        User? user = _auth.currentUser; // Get the current user
+        if (user != null) {
+          await saveFcmToken(user);
+        }
+
         CustomSnackBar.show(
           context,
           snackBarType: SnackBarType.success,
           label: "User logged in successfully!",
           bgColor: Colors.green,
         );
-        saveFcmToken();
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ChatPage(
-        //       email: _emailController.text,
-        //     ),
-        //   ),
-        // );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(
+              email: _emailController.text,
+            ),
+          ),
+        );
       } else {
         CustomSnackBar.show(
           context,
