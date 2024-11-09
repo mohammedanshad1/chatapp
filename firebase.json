@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"chatapp-49f04","appId":"1:391535670917:android:f3cc1fa2724157da4ddbec","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"chatapp-49f04","configurations":{"android":"1:391535670917:android:f3cc1fa2724157da4ddbec","ios":"1:391535670917:ios:6271a3d58213d3374ddbec"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "chatapp-49f04",
+          "appId": "1:391535670917:android:f3cc1fa2724157da4ddbec",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "chatapp-49f04",
+          "configurations": {
+            "android": "1:391535670917:android:f3cc1fa2724157da4ddbec",
+            "ios": "1:391535670917:ios:6271a3d58213d3374ddbec"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}

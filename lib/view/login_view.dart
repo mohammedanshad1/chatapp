@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chatapp/constants/app_typography.dart';
 import 'package:chatapp/services/authentication_service.dart';
 import 'package:chatapp/view/chat_view.dart';
+import 'package:chatapp/view/home_screen_view.dart';
 import 'package:chatapp/view/signup_view.dart';
 import 'package:chatapp/widgets/custom_snackabr.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -70,13 +71,13 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatPage(
-              email: _emailController.text,
-            ),
-          ),
-        );
+  context,
+  MaterialPageRoute(
+    builder: (context) => HomeScreen(
+      currentUserEmail: _emailController.text,
+    ),
+  ),
+);
       } else {
         CustomSnackBar.show(
           context,

@@ -19,45 +19,51 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-@override
-void dispose() {
-  _emailController.dispose();
-  _passwordController.dispose();
-  _confirmPasswordController.dispose();
-  super.dispose();
-}
-void signUpUser() async {
-  if (_formKey.currentState!.validate()) {
-    String res = await AuthenticationService().signUpUser(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-    if (res == "Successfully") {
-       CustomSnackBar.show(
-        context,
-        snackBarType: SnackBarType.success,
-        label: "User registered successfully!",
-        bgColor: Colors.green,
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void signUpUser() async {
+    if (_formKey.currentState!.validate()) {
+      String res = await AuthenticationService().signUpUser(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-      // Navigate to the login page if signup is successful
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginPage(),
-        ),
-      );
-    } else {
-      CustomSnackBar.show(
-        context,
-        snackBarType: SnackBarType.fail,
-        label: "User already exists",
-        bgColor: Colors.red,
-      );
-      print("User already exists");
+      setState(() {
+        isLoading = false;
+      });
+
+      if (res == "Successfully") {
+        CustomSnackBar.show(
+          context,
+          snackBarType: SnackBarType.success,
+          label: "User registered successfully!",
+          bgColor: Colors.green,
+        );
+        // Navigate to the login page if signup is successful
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPage(),
+          ),
+        );
+      } else {
+        CustomSnackBar.show(
+          context,
+          snackBarType: SnackBarType.fail,
+          label: "User already exists",
+          bgColor: Colors.red,
+        );
+        print("User already exists");
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -178,13 +184,15 @@ void signUpUser() async {
                         },
                       ),
                       const SizedBox(height: 20),
-                      CustomButton(
-                        buttonName: "Sign Up",
-                        onTap: signUpUser,
-                        buttonColor: const Color(0xFF11002C),
-                        height: 50,
-                        width: double.infinity,
-                      ),
+                      isLoading
+                          ? const CircularProgressIndicator()
+                          : CustomButton(
+                              buttonName: "Sign Up",
+                              onTap: signUpUser,
+                              buttonColor: const Color(0xFF11002C),
+                              height: 50,
+                              width: double.infinity,
+                            ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

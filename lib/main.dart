@@ -1,4 +1,4 @@
-import 'package:chatapp/view/chat_view.dart';
+import 'package:chatapp/view/home_screen_view.dart';
 import 'package:chatapp/view/login_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -27,8 +27,12 @@ class MyApp extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final User? currentUser = FirebaseAuth.instance.currentUser;
-                return ChatPage(
-                    email: currentUser?.email ?? ''); // Pass email to ChatView
+                return
+                    // ChatPage(
+                    //     email: currentUser?.email ?? '');
+                    HomeScreen(currentUserEmail: currentUser?.email ?? '');
+
+                // Pass email to ChatView
               } else {
                 return LoginPage();
               }

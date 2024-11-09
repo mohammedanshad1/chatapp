@@ -1,4 +1,5 @@
 import 'package:chatapp/constants/app_typography.dart';
+import 'package:chatapp/view/home_screen_view.dart';
 import 'package:chatapp/view/login_view.dart';
 import 'package:chatapp/view/message_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,11 +36,23 @@ class _ChatPageState extends State<ChatPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () {
-            // Navigator.pushAndRemoveUntil(
+            // Navigator.pushReplacement(
             //   context,
-            //   MaterialPageRoute(builder: (Context) => LoginPage()),
-            //   (route) => false,
+            //   MaterialPageRoute(
+            //     builder: (context) => HomeScreen(
+            //       currentUserEmail: _auth.currentUser?.email ?? '',
+            //     ),
+            //   ),
             // );
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (Context) => HomeScreen(
+                        currentUserEmail: _auth.currentUser?.email ?? "",
+                      )),
+              (route) => false,
+            );
           },
         ),
         actions: [
